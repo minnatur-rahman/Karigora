@@ -1,279 +1,244 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('admin.layouts.app')
 
-    <title>Manage Categories | Karigora Admin</title>
+@section('admin-content')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+<div class="space-y-6">
 
-    <style>
-        body {
-            background: #f4f7f6;
-            font-family: Arial, sans-serif;
-        }
+    {{-- Page Header --}}
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">
+                সকল ক্যাটাগরি
+            </h1>
 
-        .admin-header {
-            background: #198754;
-            color: white;
-            padding: 22px 0;
-        }
-
-        .main-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
-        }
-
-        .category-icon {
-            font-size: 25px;
-        }
-
-        .status-active {
-            background: #d1e7dd;
-            color: #0f5132;
-            padding: 5px 12px;
-            border-radius: 20px;
-        }
-
-        .status-inactive {
-            background: #f8d7da;
-            color: #842029;
-            padding: 5px 12px;
-            border-radius: 20px;
-        }
-    </style>
-</head>
-
-<body>
-
-    <!-- Header -->
-    <header class="admin-header">
-        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-                <h2 class="mb-1">Karigora Admin Panel</h2>
-                <p class="mb-0">ক্যাটাগরি পরিচালনা করুন</p>
-            </div>
-
-            <a href="{{ route('home') }}" class="btn btn-light">
-                হোমপেজ দেখুন
-            </a>
+            <p class="mt-1 text-sm text-gray-500">
+                ক্যাটাগরি পরিচালনা করুন।
+                মোট ক্যাটাগরি: {{ $categories->count() }} টি
+            </p>
         </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="container py-5">
+        <a href="{{ route('admin.categories.create') }}"
+           class="inline-flex items-center justify-center rounded-lg bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700">
+            + নতুন ক্যাটাগরি যোগ করুন
+        </a>
+    </div>
 
-        <!-- Success Message -->
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show">
-                {{ session('success') }}
+    {{-- Success Message --}}
+    @if (session('success'))
+        <div class="rounded-lg border border-green-200 bg-green-50 px-5 py-4 text-green-800">
+            {{ session('success') }}
+        </div>
+    @endif
 
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="alert">
-                </button>
-            </div>
-        @endif
+    {{-- Validation Errors --}}
+    @if ($errors->any())
+        <div class="rounded-lg border border-red-200 bg-red-50 px-5 py-4 text-red-800">
+            <strong>সমস্যা হয়েছে:</strong>
 
-        <!-- Validation Errors -->
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <strong>সমস্যা হয়েছে:</strong>
+            <ul class="mt-2 list-inside list-disc">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-                <ul class="mb-0 mt-2">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+    {{-- Main Card --}}
+    <div class="overflow-hidden rounded-xl bg-white shadow-sm">
 
-        <div class="main-card">
+        {{-- Search --}}
+        <div class="border-b border-gray-200 p-5">
+            <input
+                type="text"
+                id="categorySearch"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="ক্যাটাগরির নাম দিয়ে খুঁজুন..."
+            >
+        </div>
 
-            <!-- Title and Add Button -->
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        {{-- Category Table --}}
+        <div class="w-full overflow-x-auto">
 
-                <div>
-                    <h3 class="fw-bold mb-1">সকল ক্যাটাগরি</h3>
+            <table class="w-full min-w-[850px] text-left text-sm">
 
-                    <p class="text-secondary mb-0">
-                        মোট ক্যাটাগরি: {{ $categories->count() }} টি
-                    </p>
-                </div>
+                <thead class="bg-gray-50 text-gray-600">
+                    <tr>
+                        <th class="whitespace-nowrap px-5 py-4">#</th>
+                        <th class="whitespace-nowrap px-5 py-4">আইকন</th>
+                        <th class="whitespace-nowrap px-5 py-4">ক্যাটাগরির নাম</th>
+                        <th class="whitespace-nowrap px-5 py-4">Slug</th>
+                        <th class="whitespace-nowrap px-5 py-4">অবস্থা</th>
+                        <th class="whitespace-nowrap px-5 py-4">তৈরির তারিখ</th>
+                        <th class="whitespace-nowrap px-5 py-4">অ্যাকশন</th>
+                    </tr>
+                </thead>
 
-                <a href="{{ route('admin.categories.create') }}"
-                   class="btn btn-success">
-                    + নতুন ক্যাটাগরি যোগ করুন
-                </a>
+                <tbody id="categoryTable" class="divide-y divide-gray-100">
 
-            </div>
+                    @forelse ($categories as $category)
 
-            <!-- Search -->
-            <div class="mb-4">
-                <input
-                    type="text"
-                    id="categorySearch"
-                    class="form-control"
-                    placeholder="ক্যাটাগরির নাম দিয়ে খুঁজুন..."
-                >
-            </div>
+                        <tr class="category-row transition hover:bg-gray-50">
 
-            <!-- Category Table -->
-            <div class="table-responsive">
+                            <td class="px-5 py-4 text-gray-600">
+                                {{ $loop->iteration }}
+                            </td>
 
-                <table class="table table-hover align-middle">
+                            <td class="px-5 py-4 text-2xl">
+                                {{ $category->icon ?? '🔧' }}
+                            </td>
 
-                    <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>আইকন</th>
-                            <th>ক্যাটাগরির নাম</th>
-                            <th>Slug</th>
-                            <th>অবস্থা</th>
-                            <th>তৈরির তারিখ</th>
-                            <th>অ্যাকশন</th>
-                        </tr>
-                    </thead>
+                            <td class="min-w-[180px] px-5 py-4">
+                          <div class="break-words font-semibold text-gray-900">
+                                {{ $category->name }}
+                          </div>
 
-                    <tbody id="categoryTable">
+                            @if ($category->description)
+                         <div class="mt-1 whitespace-normal break-words text-xs text-gray-600">
+                            {{ $category->description }}
+                         </div>
+    @endif
+</td>
 
-                        @forelse ($categories as $category)
+                            <td class="px-5 py-4">
+                                <code class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700">
+                                    {{ $category->slug }}
+                                </code>
+                            </td>
 
-                            <tr class="category-row">
+                            <td class="px-5 py-4">
 
-                                <td>{{ $loop->iteration }}</td>
+                                @if ($category->is_active)
+                                    <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                                        সক্রিয়
+                                    </span>
+                                @else
+                                    <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                                        নিষ্ক্রিয়
+                                    </span>
+                                @endif
 
-                                <td class="category-icon">
-                                    {{ $category->icon ?? '🔧' }}
-                                </td>
+                            </td>
 
-                                <td>
-                                    <strong>{{ $category->name }}</strong>
+                            <td class="whitespace-nowrap px-5 py-4 text-gray-600">
+                                {{ $category->created_at->format('d-m-Y') }}
+                            </td>
 
-                                    @if ($category->description)
-                                        <div class="small text-secondary">
-                                            {{ $category->description }}
-                                        </div>
-                                    @endif
-                                </td>
+                            <td class="px-5 py-4">
 
-                                <td>
-                                    <code>{{ $category->slug }}</code>
-                                </td>
+                                <div class="flex items-center gap-2">
 
-                                <td>
-                                    @if ($category->is_active)
-                                        <span class="status-active">
-                                            সক্রিয়
-                                        </span>
-                                    @else
-                                        <span class="status-inactive">
-                                            নিষ্ক্রিয়
-                                        </span>
-                                    @endif
-                                </td>
-
-                                <td>
-                                    {{ $category->created_at->format('d-m-Y') }}
-                                </td>
-
-                                <td>
-                                    <div class="d-flex gap-2">
-
-                                        <a
-                                            href="{{ route('admin.categories.edit', $category) }}"
-                                            class="btn btn-sm btn-outline-primary">
-                                            Edit
-                                        </a>
-
-                                        <form
-                                            action="{{ route('admin.categories.destroy', $category) }}"
-                                            method="POST"
-                                            onsubmit="return confirm('আপনি কি এই ক্যাটাগরি মুছে ফেলতে চান?')">
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-outline-danger">
-                                                Delete
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-                                </td>
-
-                            </tr>
-
-                        @empty
-
-                            <tr>
-                                <td colspan="7" class="text-center py-5">
-                                    <h5>এখনো কোনো ক্যাটাগরি নেই!</h5>
-
-                                    <p class="text-secondary">
-                                        নতুন ক্যাটাগরি যোগ করে শুরু করুন।
-                                    </p>
-
-                                    <a href="{{ route('admin.categories.create') }}"
-                                       class="btn btn-success">
-                                        ক্যাটাগরি যোগ করুন
+                                    {{-- Edit --}}
+                                    <a href="{{ route('admin.categories.edit', $category) }}"
+                                       class="rounded-md border border-blue-300 px-3 py-2 text-xs font-semibold text-blue-600 transition hover:bg-blue-50">
+                                        Edit
                                     </a>
-                                </td>
-                            </tr>
 
-                        @endforelse
+                                    {{-- Delete --}}
+                                    <form
+                                        action="{{ route('admin.categories.destroy', $category) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('আপনি কি এই ক্যাটাগরি মুছে ফেলতে চান?')"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
 
-                        <tr id="noSearchResult" class="d-none">
-                            <td colspan="7" class="text-center py-4">
-                                কোনো ক্যাটাগরি পাওয়া যায়নি।
+                                        <button type="submit"
+                                                class="rounded-md border border-red-300 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">
+                                            Delete
+                                        </button>
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+                            <td colspan="7" class="px-5 py-12 text-center">
+
+                                <h3 class="text-lg font-semibold text-gray-700">
+                                    এখনো কোনো ক্যাটাগরি নেই!
+                                </h3>
+
+                                <p class="mt-2 text-sm text-gray-500">
+                                    নতুন ক্যাটাগরি যোগ করে শুরু করুন।
+                                </p>
+
+                                <a href="{{ route('admin.categories.create') }}"
+                                   class="mt-4 inline-block rounded-lg bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-700">
+                                    ক্যাটাগরি যোগ করুন
+                                </a>
+
                             </td>
                         </tr>
 
-                    </tbody>
+                    @endforelse
 
-                </table>
+                    {{-- Search Empty Result --}}
+                    <tr id="noSearchResult" class="hidden">
+                        <td colspan="7" class="px-5 py-8 text-center text-gray-500">
+                            কোনো ক্যাটাগরি পাওয়া যায়নি।
+                        </td>
+                    </tr>
 
-            </div>
+                </tbody>
+
+            </table>
 
         </div>
 
-    </main>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</div>
 
-    <!-- JavaScript Search -->
-    <script>
-        const searchInput = document.getElementById('categorySearch');
-        const categoryRows = document.querySelectorAll('.category-row');
-        const noSearchResult = document.getElementById('noSearchResult');
+{{-- JavaScript Search --}}
+<script>
+    
+document.addEventListener('DOMContentLoaded', function () {
 
-        searchInput.addEventListener('input', function () {
-            const searchText = this.value.toLowerCase().trim();
-            let visibleCount = 0;
+    const searchInput = document.getElementById('categorySearch');
+    const categoryRows = document.querySelectorAll('.category-row');
+    const noSearchResult = document.getElementById('noSearchResult');
 
-            categoryRows.forEach(function (row) {
-                const categoryText = row.innerText.toLowerCase();
-                const matched = categoryText.includes(searchText);
+    if (!searchInput) return;
 
-                row.style.display = matched ? '' : 'none';
+    function normalizeText(text) {
+        return text
+            .toLocaleLowerCase()
+            .normalize('NFKC')
+            .trim();
+    }
 
-                if (matched) {
-                    visibleCount++;
-                }
-            });
+    searchInput.addEventListener('input', function () {
 
-            noSearchResult.classList.toggle(
-                'd-none',
-                visibleCount > 0 || categoryRows.length === 0
-            );
+        const searchText = normalizeText(this.value);
+        let visibleCount = 0;
+
+        categoryRows.forEach(function (row) {
+
+            const categoryText = normalizeText(row.innerText);
+            const matched = categoryText.includes(searchText);
+
+            row.style.display = matched ? '' : 'none';
+
+            if (matched) {
+                visibleCount++;
+            }
+
         });
-    </script>
 
-</body>
-</html>
+        noSearchResult.classList.toggle(
+            'hidden',
+            visibleCount > 0 || categoryRows.length === 0
+        );
+
+    });
+
+});
+
+</script>
+
+@endsection
