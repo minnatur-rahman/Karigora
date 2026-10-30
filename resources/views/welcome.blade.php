@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karigora | আপনার প্রয়োজন, দক্ষ কারিগরের সমাধান</title>
+    <title>Karigora | আপনার প্রয়োজনে, দক্ষ কারিগরের সমাধান</title>
 
 ```
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -283,7 +283,7 @@
 <footer>
     <div class="container text-center">
         <h4 class="fw-bold text-white">Karigora</h4>
-        <p class="mb-2">আপনার প্রয়োজন, দক্ষ কারিগরের সমাধান।</p>
+        <p class="mb-2">আপনার প্রয়োজনে, দক্ষ কারিগরের সমাধান।</p>
         <small>© {{ date('Y') }} Karigora. সর্বস্বত্ব সংরক্ষিত।</small>
     </div>
 </footer>
