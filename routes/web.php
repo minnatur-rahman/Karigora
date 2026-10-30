@@ -3,6 +3,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Admin\DashboardController;
+
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
@@ -54,8 +56,8 @@ Route::prefix('admin')
     ->middleware(['auth', 'admin'])
     ->group(function () {
 
-        // Route::get('/dashboard', [DashboardController::class, 'index'])
-        //     ->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
 
         Route::resource('categories', AdminCategoryController::class);
         Route::resource('services', AdminServiceController::class);
