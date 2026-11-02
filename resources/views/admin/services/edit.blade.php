@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+@extends('admin.layouts.app')
+
+@section('admin-content')
+
+    <!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
@@ -252,3 +256,6 @@
 
 </body>
 </html>
+
+@endsection
+
