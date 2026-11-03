@@ -1,263 +1,216 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('admin.layouts.app')
 
-    <title>নতুন ক্যাটাগরি | Karigora Admin</title>
+@section('admin-content')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+<div class="mx-auto max-w-4xl space-y-6">
 
-    <style>
-        body {
-            background: #f4f7f6;
-            font-family: Arial, sans-serif;
-        }
+    {{-- Page Header --}}
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 sm:text-3xl">
+                নতুন ক্যাটাগরি তৈরি করুন
+            </h1>
+            <p class="mt-2 text-sm text-gray-500">
+                নতুন সার্ভিস ক্যাটাগরির তথ্য পূরণ করুন।
+            </p>
+        </div>
 
-        .admin-header {
-            background: #198754;
-            color: white;
-            padding: 22px 0;
-        }
+        <a href="{{ route('admin.categories.index') }}"
+           class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+            ← সব ক্যাটাগরি
+        </a>
+    </div>
 
-        .form-card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
-        }
+    {{-- Validation Errors --}}
+    @if ($errors->any())
+        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+            <p class="font-semibold">দয়া করে নিচের ভুলগুলো ঠিক করুন:</p>
 
-        .form-label {
-            font-weight: 600;
-        }
+            <ul class="mt-2 list-inside list-disc space-y-1 text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-        .required {
-            color: red;
-        }
+    {{-- Category Form Card --}}
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
 
-        .icon-option {
-            cursor: pointer;
-            font-size: 25px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin: 4px;
-            background: white;
-        }
+        <div class="mb-6 border-b border-gray-100 pb-5">
+            <h2 class="text-xl font-bold text-gray-800">
+                ক্যাটাগরির তথ্য
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">
+                * চিহ্নিত ফিল্ডগুলো পূরণ করা আবশ্যক।
+            </p>
+        </div>
 
-        .icon-option:hover {
-            background: #d1e7dd;
-        }
+        <form action="{{ route('admin.categories.store') }}" method="POST">
+            @csrf
 
-        .icon-option.selected {
-            background: #d1e7dd;
-            border-color: #198754;
-        }
-    </style>
-</head>
+            {{-- Category Name --}}
+            <div class="mb-6">
+                <label for="name" class="mb-2 block text-sm font-semibold text-gray-700">
+                    ক্যাটাগরির নাম <span class="text-red-500">*</span>
+                </label>
 
-<body>
+                <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    value="{{ old('name') }}"
+                    placeholder="যেমন: ফ্রিজ টেকনিশিয়ান"
+                    maxlength="255"
+                    required
+                    class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
 
-    <!-- Header -->
-    <header class="admin-header">
-        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+                @error('name')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
 
-            <div>
-                <h2 class="mb-1">Karigora Admin Panel</h2>
-                <p class="mb-0">নতুন সার্ভিস ক্যাটাগরি তৈরি করুন</p>
+                <p class="mt-2 text-xs text-gray-500">
+                    ক্যাটাগরির নাম বাংলা বা ইংরেজিতে লিখতে পারেন।
+                </p>
             </div>
 
-            <a href="{{ route('admin.categories.index') }}"
-               class="btn btn-light">
-                ← সব ক্যাটাগরি
-            </a>
+            {{-- Slug --}}
+            <div class="mb-6">
+                <label for="slug" class="mb-2 block text-sm font-semibold text-gray-700">
+                    Slug
+                </label>
 
-        </div>
-    </header>
+                <input
+                    type="text"
+                    name="slug"
+                    id="slug"
+                    value="{{ old('slug') }}"
+                    placeholder="যেমন: fridge-technician"
+                    class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
 
-    <!-- Main Form -->
-    <main class="container py-5">
+                @error('slug')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
 
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
+                <p class="mt-2 text-xs text-gray-500">
+                    খালি রাখলে আপনার Controller-এর নিয়ম অনুযায়ী Slug তৈরি হবে।
+                    ইংরেজি অক্ষর ব্যবহার করা ভালো।
+                </p>
+            </div>
 
-                <div class="form-card">
+            {{-- Description --}}
+            <div class="mb-6">
+                <label for="description" class="mb-2 block text-sm font-semibold text-gray-700">
+                    ক্যাটাগরির বিবরণ
+                </label>
 
-                    <h3 class="fw-bold mb-2">নতুন ক্যাটাগরি যোগ করুন</h3>
+                <textarea
+                    name="description"
+                    id="description"
+                    rows="4"
+                    placeholder="এই সার্ভিসে কী ধরনের কাজ করা হয় লিখুন..."
+                    class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >{{ old('description') }}</textarea>
 
-                    <p class="text-secondary mb-4">
-                        নিচের তথ্যগুলো পূরণ করে নতুন ক্যাটাগরি তৈরি করুন।
-                    </p>
+                @error('description')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
-                    <!-- Validation Errors -->
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <strong>দয়া করে ভুলগুলো ঠিক করুন:</strong>
+            {{-- Category Icon --}}
+            <div class="mb-6">
+                <label for="icon" class="mb-2 block text-sm font-semibold text-gray-700">
+                    ক্যাটাগরি Icon
+                </label>
 
-                            <ul class="mb-0 mt-2">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                <input
+                    type="text"
+                    name="icon"
+                    id="icon"
+                    value="{{ old('icon', '🔧') }}"
+                    placeholder="একটি Emoji দিন"
+                    class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
 
-                    <!-- Category Form -->
-                    <form action="{{ route('admin.categories.store') }}"
-                          method="POST">
+                @error('icon')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
 
-                        @csrf
+                <p class="mb-3 mt-3 text-sm text-gray-500">
+                    অথবা নিচের Icon-এ ক্লিক করুন:
+                </p>
 
-                        <!-- Category Name -->
-                        <div class="mb-4">
-
-                            <label for="name" class="form-label">
-                                ক্যাটাগরির নাম <span class="required">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                name="name"
-                                id="name"
-                                class="form-control"
-                                value="{{ old('name') }}"
-                                placeholder="যেমন: ফ্রিজ টেকনিশিয়ান"
-                                maxlength="255"
-                                required>
-
-                            <div class="form-text">
-                                সার্ভিসের নাম বাংলায় বা ইংরেজিতে লিখতে পারো।
-                            </div>
-
-                        </div>
-
-                        <!-- Slug -->
-                        <div class="mb-4">
-
-                            <label for="slug" class="form-label">
-                                Slug
-                            </label>
-
-                            <input
-                                type="text"
-                                name="slug"
-                                id="slug"
-                                class="form-control"
-                                value="{{ old('slug') }}"
-                                placeholder="যেমন: fridge-technician">
-
-                            <div class="form-text">
-                                খালি রাখলে নাম থেকে স্বয়ংক্রিয়ভাবে Slug তৈরি হবে।
-                                ইংরেজি অক্ষর ব্যবহার করা ভালো।
-                            </div>
-
-                        </div>
-
-                        <!-- Description -->
-                        <div class="mb-4">
-
-                            <label for="description" class="form-label">
-                                ক্যাটাগরির বিবরণ
-                            </label>
-
-                            <textarea
-                                name="description"
-                                id="description"
-                                class="form-control"
-                                rows="4"
-                                placeholder="এই সার্ভিসে কী ধরনের কাজ করা হয় লিখুন...">{{ old('description') }}</textarea>
-
-                        </div>
-
-                        <!-- Icon -->
-                        <div class="mb-4">
-
-                            <label for="icon" class="form-label">
-                                ক্যাটাগরি Icon
-                            </label>
-
-                            <input
-                                type="text"
-                                name="icon"
-                                id="icon"
-                                class="form-control"
-                                value="{{ old('icon', '🔧') }}"
-                                placeholder="একটি Emoji দিন">
-
-                            <div class="mt-3">
-                                <p class="small text-secondary mb-2">
-                                    অথবা নিচের Icon-এ ক্লিক করো:
-                                </p>
-
-                                <button type="button" class="icon-option" data-icon="⚙️">⚙️</button>
-                                <button type="button" class="icon-option" data-icon="❄️">❄️</button>
-                                <button type="button" class="icon-option" data-icon="🔧">🔧</button>
-                                <button type="button" class="icon-option" data-icon="⚡">⚡</button>
-                                <button type="button" class="icon-option" data-icon="🚰">🚰</button>
-                                <button type="button" class="icon-option" data-icon="🧹">🧹</button>
-                                <button type="button" class="icon-option" data-icon="🎨">🎨</button>
-                                <button type="button" class="icon-option" data-icon="🛠️">🛠️</button>
-                            </div>
-
-                        </div>
-
-                        <!-- Active Status -->
-                        <div class="mb-4">
-
-                            <label for="is_active" class="form-label">
-                                ক্যাটাগরির অবস্থা
-                            </label>
-
-                            <select
-                                name="is_active"
-                                id="is_active"
-                                class="form-select"
-                                required>
-
-                                <option value="1"
-                                    {{ old('is_active', '1') == '1' ? 'selected' : '' }}>
-                                    Active — হোমপেজে দেখাবে
-                                </option>
-
-                                <option value="0"
-                                    {{ old('is_active') === '0' ? 'selected' : '' }}>
-                                    Inactive — হোমপেজে দেখাবে না
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                        <!-- Buttons -->
-                        <div class="d-flex gap-2 flex-wrap">
-
-                            <button type="submit" class="btn btn-success px-4">
-                                + ক্যাটাগরি সেভ করুন
-                            </button>
-
-                            <a href="{{ route('admin.categories.index') }}"
-                               class="btn btn-outline-secondary px-4">
-                                বাতিল
-                            </a>
-
-                        </div>
-
-                    </form>
-
+                <div class="flex flex-wrap gap-2">
+                    @foreach (['⚙️', '❄️', '🔧', '⚡', '🚰', '🧹', '🎨', '🛠️'] as $emoji)
+                        <button
+                            type="button"
+                            data-icon="{{ $emoji }}"
+                            aria-label="Icon {{ $emoji }}"
+                            class="icon-option rounded-lg border border-gray-300 bg-white px-3 py-2 text-2xl transition hover:border-blue-500 hover:bg-blue-50"
+                        >{{ $emoji }}</button>
+                    @endforeach
                 </div>
-
             </div>
-        </div>
 
-    </main>
+            {{-- Active Status --}}
+            <div class="mb-8">
+                <label for="is_active" class="mb-2 block text-sm font-semibold text-gray-700">
+                    ক্যাটাগরির অবস্থা
+                </label>
 
-    <!-- JavaScript -->
-    <script>
-        // ক্যাটাগরির নাম থেকে Slug তৈরি
-        const nameInput = document.getElementById('name');
-        const slugInput = document.getElementById('slug');
+                <select
+                    name="is_active"
+                    id="is_active"
+                    required
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
+                    <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>
+                        Active — হোমপেজে দেখাবে
+                    </option>
 
+                    <option value="0" {{ old('is_active') === '0' ? 'selected' : '' }}>
+                        Inactive — হোমপেজে দেখাবে না
+                    </option>
+                </select>
+
+                @error('is_active')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Action Buttons --}}
+            <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 sm:flex-row">
+                <a
+                    href="{{ route('admin.categories.index') }}"
+                    class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+                >
+                    বাতিল
+                </a>
+
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                    + ক্যাটাগরি সেভ করুন
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+{{-- JavaScript: Slug and Icon Selection --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const nameInput = document.getElementById('name');
+    const slugInput = document.getElementById('slug');
+    const iconInput = document.getElementById('icon');
+    const iconButtons = document.querySelectorAll('.icon-option');
+
+    if (nameInput && slugInput) {
         let slugManuallyEdited = slugInput.value.trim() !== '';
 
         slugInput.addEventListener('input', function () {
@@ -274,23 +227,24 @@
                     .replace(/-+/g, '-');
             }
         });
+    }
 
-        // Icon বাটনে ক্লিক করলে Icon ইনপুটে বসবে
-        const iconInput = document.getElementById('icon');
-        const iconButtons = document.querySelectorAll('.icon-option');
-
-        iconButtons.forEach(function (button) {
-            button.addEventListener('click', function () {
+    iconButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            if (iconInput) {
                 iconInput.value = this.dataset.icon;
+            }
 
-                iconButtons.forEach(function (item) {
-                    item.classList.remove('selected');
-                });
-
-                this.classList.add('selected');
+            iconButtons.forEach(function (item) {
+                item.classList.remove('border-blue-500', 'bg-blue-100');
+                item.classList.add('border-gray-300', 'bg-white');
             });
-        });
-    </script>
 
-</body>
-</html>
+            this.classList.remove('border-gray-300', 'bg-white');
+            this.classList.add('border-blue-500', 'bg-blue-100');
+        });
+    });
+});
+</script>
+
+@endsection

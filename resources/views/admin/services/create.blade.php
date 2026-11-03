@@ -1,259 +1,273 @@
+
 @extends('admin.layouts.app')
 
 @section('admin-content')
 
-   <!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<div class="mx-auto max-w-4xl space-y-6">
 
-    <title>নতুন সার্ভিস | Karigora</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-
-    <style>
-        body {
-            background: #f4f7f6;
-            font-family: Arial, sans-serif;
-        }
-
-        .admin-header {
-            background: #198754;
-            color: white;
-            padding: 22px 0;
-        }
-
-        .form-card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 3px 15px rgba(0,0,0,.05);
-        }
-
-        .form-label {
-            font-weight: 600;
-        }
-    </style>
-</head>
-
-<body>
-
-<header class="admin-header">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+    {{-- Page Header --}}
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-            <h2 class="mb-1">Karigora Admin Panel</h2>
-            <p class="mb-0">নতুন সার্ভিস তৈরি করুন</p>
+            <h1 class="text-2xl font-bold text-gray-800 sm:text-3xl">
+                নতুন সার্ভিস তৈরি করুন
+            </h1>
+            <p class="mt-2 text-sm text-gray-500">
+                নতুন সার্ভিসের প্রয়োজনীয় তথ্য পূরণ করুন।
+            </p>
         </div>
 
         <a href="{{ route('admin.services.index') }}"
-           class="btn btn-light">
+           class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
             ← সব সার্ভিস
         </a>
     </div>
-</header>
 
-<main class="container py-5">
+    {{-- Validation Errors --}}
+    @if ($errors->any())
+        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+            <p class="font-semibold">দয়া করে ভুলগুলো ঠিক করুন:</p>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+            <ul class="mt-2 list-inside list-disc space-y-1 text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-            <div class="form-card">
+    {{-- No Active Categories --}}
+    @if ($categories->isEmpty())
+        <div class="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-800">
+            <p class="font-semibold">কোনো Active Category নেই।</p>
+            <p class="mt-1 text-sm">
+                প্রথমে একটি Category তৈরি করুন অথবা কোনো Category Active করুন।
+            </p>
+            <a href="{{ route('admin.categories.index') }}"
+               class="mt-3 inline-block text-sm font-semibold underline">
+                Category দেখুন →
+            </a>
+        </div>
+    @endif
 
-                <h3 class="fw-bold mb-2">নতুন সার্ভিস যোগ করুন</h3>
+    {{-- Service Form --}}
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
 
-                <p class="text-secondary mb-4">
-                    সার্ভিসের তথ্য পূরণ করে সেভ করুন।
+        <div class="mb-6 border-b border-gray-100 pb-5">
+            <h2 class="text-xl font-bold text-gray-800">
+                সার্ভিসের তথ্য
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">
+                প্রয়োজনীয় তথ্য দিয়ে নতুন সার্ভিস তৈরি করুন।
+            </p>
+        </div>
+
+        <form action="{{ route('admin.services.store') }}" method="POST">
+            @csrf
+
+            {{-- Category --}}
+            <div class="mb-6">
+                <label for="category_id" class="mb-2 block text-sm font-semibold text-gray-700">
+                    ক্যাটাগরি <span class="text-red-500">*</span>
+                </label>
+
+                <select
+                    name="category_id"
+                    id="category_id"
+                    required
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
+                    <option value="">ক্যাটাগরি নির্বাচন করুন</option>
+
+                    @foreach ($categories as $category)
+                        <option
+                            value="{{ $category->id }}"
+                            {{ old('category_id') == $category->id ? 'selected' : '' }}
+                        >
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+
+                @error('category_id')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Service Name --}}
+            <div class="mb-6">
+                <label for="name" class="mb-2 block text-sm font-semibold text-gray-700">
+                    সার্ভিসের নাম <span class="text-red-500">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    value="{{ old('name') }}"
+                    placeholder="যেমন: AC Servicing"
+                    maxlength="255"
+                    required
+                    class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
+
+                @error('name')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Slug --}}
+            <div class="mb-6">
+                <label for="slug" class="mb-2 block text-sm font-semibold text-gray-700">
+                    Slug
+                </label>
+
+                <input
+                    type="text"
+                    name="slug"
+                    id="slug"
+                    value="{{ old('slug') }}"
+                    placeholder="যেমন: ac-servicing"
+                    class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
+
+                @error('slug')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+
+                <p class="mt-2 text-xs text-gray-500">
+                    খালি রাখলে Controller-এর নিয়ম অনুযায়ী সার্ভিসের নাম থেকে Slug তৈরি হবে।
                 </p>
+            </div>
 
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+            {{-- Description --}}
+            <div class="mb-6">
+                <label for="description" class="mb-2 block text-sm font-semibold text-gray-700">
+                    সার্ভিসের বিবরণ
+                </label>
 
-                @if ($categories->isEmpty())
-                    <div class="alert alert-warning">
-                        কোনো Active Category নেই। প্রথমে একটি Category Active করুন।
-                    </div>
-                @endif
+                <textarea
+                    name="description"
+                    id="description"
+                    rows="4"
+                    placeholder="সার্ভিসে কী কী কাজ করা হবে লিখুন..."
+                    class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >{{ old('description') }}</textarea>
 
-                <form action="{{ route('admin.services.store') }}"
-                      method="POST">
+                @error('description')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
-                    @csrf
+            {{-- Price Type --}}
+            <div class="mb-6">
+                <label for="price_type" class="mb-2 block text-sm font-semibold text-gray-700">
+                    মূল্য নির্ধারণ পদ্ধতি <span class="text-red-500">*</span>
+                </label>
 
-                    <!-- Category -->
-                    <div class="mb-4">
-                        <label for="category_id" class="form-label">
-                            ক্যাটাগরি <span class="text-danger">*</span>
-                        </label>
+                <select
+                    name="price_type"
+                    id="price_type"
+                    required
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
+                    <option value="fixed"
+                        {{ old('price_type', 'fixed') === 'fixed' ? 'selected' : '' }}>
+                        Fixed Price — নির্দিষ্ট মূল্য
+                    </option>
 
-                        <select name="category_id"
-                                id="category_id"
-                                class="form-select"
-                                required>
+                    <option value="quote"
+                        {{ old('price_type') === 'quote' ? 'selected' : '' }}>
+                        Request a Quote — কাজ দেখে মূল্য নির্ধারণ
+                    </option>
+                </select>
 
-                            <option value="">ক্যাটাগরি নির্বাচন করুন</option>
+                @error('price_type')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
-                            @foreach ($categories as $category)
-                                <option
-                                    value="{{ $category->id }}"
-                                    {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
+            {{-- Price --}}
+            <div class="mb-6" id="priceWrapper">
+                <label for="price" class="mb-2 block text-sm font-semibold text-gray-700">
+                    মূল্য (টাকা)
+                </label>
 
-                        </select>
-                    </div>
+                <input
+                    type="number"
+                    name="price"
+                    id="price"
+                    value="{{ old('price') }}"
+                    min="0"
+                    step="0.01"
+                    placeholder="যেমন: 800"
+                    class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
 
-                    <!-- Service Name -->
-                    <div class="mb-4">
-                        <label for="name" class="form-label">
-                            সার্ভিসের নাম <span class="text-danger">*</span>
-                        </label>
+                @error('price')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
 
-                        <input
-                            type="text"
-                            name="name"
-                            id="name"
-                            class="form-control"
-                            value="{{ old('name') }}"
-                            placeholder="যেমন: AC Servicing"
-                            maxlength="255"
-                            required>
-                    </div>
+                <p class="mt-2 text-xs text-gray-500">
+                    Fixed Price বেছে নিলে মূল্য দিতে হবে।
+                </p>
+            </div>
 
-                    <!-- Slug -->
-                    <div class="mb-4">
-                        <label for="slug" class="form-label">Slug</label>
+            {{-- Status --}}
+            <div class="mb-8">
+                <label for="is_active" class="mb-2 block text-sm font-semibold text-gray-700">
+                    সার্ভিসের অবস্থা
+                </label>
 
-                        <input
-                            type="text"
-                            name="slug"
-                            id="slug"
-                            class="form-control"
-                            value="{{ old('slug') }}"
-                            placeholder="যেমন: ac-servicing">
+                <select
+                    name="is_active"
+                    id="is_active"
+                    required
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
+                    <option value="1"
+                        {{ old('is_active', '1') === '1' ? 'selected' : '' }}>
+                        Active — গ্রাহক দেখতে পাবেন
+                    </option>
 
-                        <div class="form-text">
-                            খালি রাখলে সার্ভিসের নাম থেকে Slug তৈরি হবে।
-                            ইংরেজি অক্ষর ব্যবহার করো।
-                        </div>
-                    </div>
+                    <option value="0"
+                        {{ old('is_active') === '0' ? 'selected' : '' }}>
+                        Inactive — গ্রাহক দেখতে পাবেন না
+                    </option>
+                </select>
 
-                    <!-- Description -->
-                    <div class="mb-4">
-                        <label for="description" class="form-label">
-                            সার্ভিসের বিবরণ
-                        </label>
+                @error('is_active')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
-                        <textarea
-                            name="description"
-                            id="description"
-                            class="form-control"
-                            rows="4"
-                            placeholder="সার্ভিসে কী কী কাজ করা হবে লিখো...">{{ old('description') }}</textarea>
-                    </div>
+            {{-- Buttons --}}
+            <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 sm:flex-row">
 
-                    <!-- Price Type -->
-                    <div class="mb-4">
-                        <label for="price_type" class="form-label">
-                            মূল্য নির্ধারণ পদ্ধতি <span class="text-danger">*</span>
-                        </label>
+                <a href="{{ route('admin.services.index') }}"
+                   class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100">
+                    বাতিল
+                </a>
 
-                        <select name="price_type"
-                                id="price_type"
-                                class="form-select"
-                                required>
-
-                            <option value="fixed"
-                                {{ old('price_type', 'fixed') === 'fixed' ? 'selected' : '' }}>
-                                Fixed Price — নির্দিষ্ট মূল্য
-                            </option>
-
-                            <option value="quote"
-                                {{ old('price_type') === 'quote' ? 'selected' : '' }}>
-                                Request a Quote — কাজ দেখে মূল্য নির্ধারণ
-                            </option>
-
-                        </select>
-                    </div>
-
-                    <!-- Price -->
-                    <div class="mb-4" id="priceWrapper">
-                        <label for="price" class="form-label">
-                            মূল্য (টাকা)
-                        </label>
-
-                        <input
-                            type="number"
-                            name="price"
-                            id="price"
-                            class="form-control"
-                            value="{{ old('price') }}"
-                            min="0"
-                            step="0.01"
-                            placeholder="যেমন: 800">
-
-                        <div class="form-text">
-                            Fixed Price বেছে নিলে মূল্য দিতে হবে।
-                        </div>
-                    </div>
-
-                    <!-- Status -->
-                    <div class="mb-4">
-                        <label for="is_active" class="form-label">
-                            সার্ভিসের অবস্থা
-                        </label>
-
-                        <select name="is_active"
-                                id="is_active"
-                                class="form-select"
-                                required>
-
-                            <option value="1"
-                                {{ old('is_active', '1') === '1' ? 'selected' : '' }}>
-                                Active — গ্রাহক দেখতে পাবেন
-                            </option>
-
-                            <option value="0"
-                                {{ old('is_active') === '0' ? 'selected' : '' }}>
-                                Inactive — গ্রাহক দেখতে পাবেন না
-                            </option>
-
-                        </select>
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button type="submit"
-                                class="btn btn-success px-4"
-                                {{ $categories->isEmpty() ? 'disabled' : '' }}>
-                            + সার্ভিস সেভ করুন
-                        </button>
-
-                        <a href="{{ route('admin.services.index') }}"
-                           class="btn btn-outline-secondary px-4">
-                            বাতিল
-                        </a>
-                    </div>
-
-                </form>
+                <button
+                    type="submit"
+                    {{ $categories->isEmpty() ? 'disabled' : '' }}
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                >
+                    + সার্ভিস সেভ করুন
+                </button>
 
             </div>
-        </div>
+
+        </form>
     </div>
 
-</main>
+</div>
 
+{{-- JavaScript --}}
 <script>
-    // নাম থেকে Slug তৈরি
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Slug Generation
     const nameInput = document.getElementById('name');
     const slugInput = document.getElementById('slug');
 
@@ -274,7 +288,7 @@
         }
     });
 
-    // Fixed Price / Quote নির্বাচন অনুযায়ী মূল্য ইনপুট
+    // Fixed Price / Quote
     const priceType = document.getElementById('price_type');
     const priceWrapper = document.getElementById('priceWrapper');
     const priceInput = document.getElementById('price');
@@ -292,10 +306,8 @@
 
     priceType.addEventListener('change', updatePriceField);
     updatePriceField();
+
+});
 </script>
 
-</body>
-</html>
-
 @endsection
-
