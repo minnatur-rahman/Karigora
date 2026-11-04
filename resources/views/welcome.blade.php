@@ -565,7 +565,7 @@
                 <div class="hero-image">
 
                     <img
-                        src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1000"
+                        src="https://media.istockphoto.com/id/2229653648/vector/professional-electrician-tools-set.jpg?s=612x612&w=0&k=20&c=FR58XuKMDCIVeuWCAwIDQxApuGMViK0wEPtN55x96s0="
                         alt="দক্ষ ইলেকট্রিক্যাল কারিগর"
                         onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1000';">
 
