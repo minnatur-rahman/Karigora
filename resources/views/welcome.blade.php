@@ -478,27 +478,77 @@
 
         <div class="collapse navbar-collapse" id="mainNav">
 
-            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
+            
+<ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#categories">ক্যাটাগরি</a>
-                </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#categories">ক্যাটাগরি</a>
+    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#services">সার্ভিসসমূহ</a>
-                </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#services">সার্ভিসসমূহ</a>
+    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#how-it-works">কীভাবে কাজ করে</a>
-                </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#how-it-works">কীভাবে কাজ করে</a>
+    </li>
 
-                <li class="nav-item mt-2 mt-lg-0">
-                    <a class="btn btn-karigora" href="#categories">
-                        সার্ভিস খুঁজুন →
-                    </a>
-                </li>
+     <li class="nav-item mt-2 mt-lg-0">
+        <a class="btn btn-karigora" href="#categories">
+            সার্ভিস খুঁজুন →
+        </a>
+    </li>
 
-            </ul>
+    @guest
+        {{-- Guest User --}}
+        <li class="nav-item mt-2 mt-lg-0">
+            <a href="{{ route('login') }}"
+               class="btn btn-outline-success px-4">
+                Login
+            </a>
+        </li>
+
+        <li class="nav-item mt-2 mt-lg-0">
+            <a href="{{ route('register') }}"
+               class="btn btn-karigora">
+                Register
+            </a>
+        </li>
+    @else
+        {{-- Logged-in User --}}
+
+        @if (auth()->user()->is_admin)
+            <li class="nav-item mt-2 mt-lg-0">
+                <a href="{{ route('admin.dashboard') }}"
+                   class="btn btn-karigora">
+                    Admin Panel
+                </a>
+            </li>
+        @else
+            <li class="nav-item mt-2 mt-lg-0">
+                <a href="{{ route('dashboard') }}"
+                   class="btn btn-karigora">
+                    My Dashboard
+                </a>
+            </li>
+        @endif
+
+        <li class="nav-item mt-2 mt-lg-0">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+
+                <button type="submit"
+                        class="btn btn-outline-danger px-4">
+                    Logout
+                </button>
+            </form>
+        </li>
+    @endguest
+
+   
+
+</ul>
+
 
         </div>
     </div>
